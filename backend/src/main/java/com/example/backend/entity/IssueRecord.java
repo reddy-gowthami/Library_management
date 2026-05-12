@@ -1,11 +1,18 @@
 package com.example.backend.entity;
 
-import com.example.backend.entity.Book;
-import com.example.backend.entity.Member;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDate;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "issue_records")
@@ -28,6 +35,6 @@ public class IssueRecord {
     private Book book;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    private User user;
 }

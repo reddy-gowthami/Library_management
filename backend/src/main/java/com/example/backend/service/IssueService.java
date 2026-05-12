@@ -1,17 +1,16 @@
 package com.example.backend.service;
 
-
-
 import com.example.backend.dto.IssueRequestDto;
 import com.example.backend.entity.Book;
 import com.example.backend.entity.IssueRecord;
-import com.example.backend.entity.Member;
+import com.example.backend.entity.User;
 import com.example.backend.exception.BookNotAvailableException;
 import com.example.backend.exception.IssueLimitExceededException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.BookRepository;
 import com.example.backend.repository.IssueRecordRepository;
-import com.example.backend.repository.MemberRepository;
+import com.example.backend.repository.UserRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,53 +20,62 @@ public class IssueService {
 
     private final IssueRecordRepository issueRecordRepository;
     private final BookRepository bookRepository;
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
     public IssueService(IssueRecordRepository issueRecordRepository,
                         BookRepository bookRepository,
-                        MemberRepository memberRepository) {
+                        UserRepository userRepository) {
 
         this.issueRecordRepository = issueRecordRepository;
         this.bookRepository = bookRepository;
-        this.memberRepository = memberRepository;
+        this.userRepository = userRepository;
     }
 
     public IssueRecord issueBook(IssueRequestDto requestDto) {
 
+        // Find Book
         Book book = bookRepository.findById(requestDto.getBookId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Book not found"));
 
-        Member member = memberRepository.findById(requestDto.getMemberId())
+        // Find User
+        User user = userRepository.findById(requestDto.getUserId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Member not found"));
+                        new ResourceNotFoundException("User not found"));
 
-        if (!book.isAvailable()) {
+        // Check Book Availability
+        if (!book.isAvailability()) {
             throw new BookNotAvailableException(
                     "Book is already issued");
         }
 
+        // Check Active Issued Books Count
         long activeBooks =
                 issueRecordRepository
-                        .countByMemberMemberIdAndReturnDateIsNull(
-                                member.getMemberId());
+                        .countByUserIdAndReturnDateIsNull(
+                                user.getId());
 
+        // Max 3 Books Rule
         if (activeBooks >= 3) {
             throw new IssueLimitExceededException(
-                    "Member already has 3 books issued");
+                    "User already has 3 books issued");
         }
 
+        // Create Issue Record
         IssueRecord issueRecord = new IssueRecord();
 
         issueRecord.setBook(book);
-        issueRecord.setMember(member);
+        issueRecord.setUser(user);
         issueRecord.setIssueDate(LocalDate.now());
         issueRecord.setReturnDate(null);
 
-        book.setAvailable(false);
+        // Mark Book Unavailable
+        book.setAvailability(false);
 
+        // Save Updated Book
         bookRepository.save(book);
 
+        // Save Issue Record
         return issueRecordRepository.save(issueRecord);
     }
 }

@@ -1,13 +1,12 @@
 package com.example.backend.repository;
 
+import com.example.backend.entity.IssueRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.backend.entity.IssueRecord;
-
-public interface IssueRecordRepository 
+public interface IssueRecordRepository
         extends JpaRepository<IssueRecord, Long> {
 
-    long countByMemberMemberIdAndReturnDateIsNull(Long memberId);
+    long countByUserIdAndReturnDateIsNull(Long userId);
 
     boolean existsByBookBookIdAndReturnDateIsNull(Long bookId);
 }

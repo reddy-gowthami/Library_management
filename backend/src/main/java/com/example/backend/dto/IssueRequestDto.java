@@ -1,13 +1,21 @@
-package com.example.backend.dto;
-
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+package com.example.backend.dto;    
 public class IssueRequestDto {
-
     private Long bookId;
+    private Long userId;
 
-    private Long memberId;
+    public Long getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(Long bookId) {
+        this.bookId = bookId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 }
